@@ -17,6 +17,7 @@ provides_hooks:
   - on_session_start
   - pre_llm_call
   - on_session_finalize
+  - on_session_end
 config_schema:
   timezone:
     type: str

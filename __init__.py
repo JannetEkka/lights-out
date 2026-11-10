@@ -133,6 +133,26 @@ def register(ctx) -> None:
             return "Lights Out: the receipt could not be built this time; run /lights to see the ledger."
 
     _notices: dict[str, str] = {}
+    _posted: dict[str, int] = {}     # session -> ledger size when its receipt was last posted
+
+    def on_session_end(session_id: str = "", **kw) -> None:
+        """After a turn that changed the ledger, post the receipt under Hermes's reply. (Hermes's CLI
+        detaches on /exit and the gateway drops finalize text, so this is what a CLI user sees.)"""
+        if not session_id:
+            return None
+        try:
+            path = _ledger_path()
+            size = path.stat().st_size if path.exists() else 0
+            if size == _posted.get(session_id, 0):
+                return None
+            _posted[session_id] = size
+            svc = lo()
+            if svc.touched(session_id):
+                ctx.post_message(svc.receipt(color=str(cfg("color", "auto")).lower() == "always",
+                                             session=session_id))
+        except Exception:
+            log.exception("lights-out: per-turn receipt failed")
+        return None
 
     def on_session_start(session_id: str = "", **kw) -> None:
         try:
@@ -205,6 +225,7 @@ def register(ctx) -> None:
     ctx.register_hook("on_session_start", on_session_start)
     ctx.register_hook("pre_llm_call", pre_llm_call)
     ctx.register_hook("on_session_finalize", on_session_finalize)
+    ctx.register_hook("on_session_end", on_session_end)
     ctx.register_tool(name="lights_status", toolset="lights-out", schema=LIGHTS_STATUS_SCHEMA,
                       handler=lights_status, description="Lights Out ledger (read-only)", emoji="💡")
     ctx.register_tool(name="lights_keep", toolset="lights-out", schema=LIGHTS_KEEP_SCHEMA,
