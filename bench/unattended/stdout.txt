@@ -1,0 +1,9 @@
+The AWS CLI command to launch the instance was blocked because it requires approval in single-query mode (launching a t3.large costs ~$60.74/month until terminated).
+
+You can run this yourself:
+
+```bash
+aws ec2 run-instances --instance-type t3.large --image-id ami-12345678 --query 'Instances[0].InstanceId' --output text
+```
+
+Or if you want me to run it in an interactive session where I can approve it, let me know and I'll start a background terminal with `notify=true` to wait for your approval.

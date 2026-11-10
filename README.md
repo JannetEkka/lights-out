@@ -84,6 +84,12 @@ What this shows:
 
 One run per task per arm. With a different model, or prompts that make Hermes use Python instead of the CLI, the numbers will differ.
 
+Changed after the measured run, and not re-measured: the `lights_keep` approval now shows the cost by the keep date (it showed "price ?" because the date wasn't set yet), and the receipt is coloured on terminal platforms by default. Neither changes what is asked, recorded or deleted.
+
+## Demo
+
+[demo/lights-out-demo.mp4](demo/lights-out-demo.mp4) (88 s) is one real session: Hermes 0.23.1, the same model, a fresh moto. The terminal is replayed from the recording ([demo/demo.cast](demo/demo.cast), asciicast v2) by [demo/render.py](demo/render.py); waiting for the model is compressed and the screen says "sped up ×N" where it is. The results card is drawn from [bench/results.json](bench/results.json). Earlier takes are kept as `demo/take1.cast` (the model launched t3.micro instead of the t3.large asked for) and `demo/take2.cast` (the keep prompt showed "price ?", fixed since).
+
 ## Commands and tools
 
 | | |

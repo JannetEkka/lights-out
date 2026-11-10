@@ -1,5 +1,5 @@
 {
- "started": "2026-11-10T04:26:06Z",
+ "started": "2026-11-10T06:01:43Z",
  "checks": [
   {
    "check": "no: approval prompt shown with price",
@@ -23,10 +23,10 @@
    "pass": true,
    "detail": {
     "ledger": [
-     "i-f11320622c67d77c7"
+     "i-ff0475bcfce76dd66"
     ],
     "moto": [
-     "i-f11320622c67d77c7"
+     "i-ff0475bcfce76dd66"
     ]
    }
   },
@@ -53,5 +53,5 @@
    "detail": ""
   }
  ],
- "ledger": "{\"at\": \"2026-11-10T04:27:37+00:00\", \"command\": \"aws ec2 run-instances --instance-type t3.large --image-id ami-12345678 --query Instances[0].InstanceId --output text\", \"delete_cmd\": \"aws ec2 terminate-instances --instance-ids i-f11320622c67d77c7\", \"event\": \"created\", \"hourly\": 0.0832, \"id\": \"i-f11320622c67d77c7\", \"kind\": \"ec2\", \"note\": \"\", \"region\": \"\", \"session\": \"local-79bc2c954e3a8340ea39079b3e186fa62400158a2ae824e8408cad505bc3b556\", \"size\": \"t3.large\", \"v\": 1}\n{\"at\": \"2026-11-10T04:28:08+00:00\", \"command\": \"aws ec2 terminate-instances --instance-ids i-f11320622c67d77c7\", \"event\": \"deleted\", \"id\": \"i-f11320622c67d77c7\", \"session\": \"local-79bc2c954e3a8340ea39079b3e186fa62400158a2ae824e8408cad505bc3b556\", \"v\": 1}\n"
+ "ledger": "{\"at\": \"2026-11-10T06:02:55+00:00\", \"command\": \"aws ec2 run-instances --image-id ami-12345678 --instance-type t3.large --query Instances[0].InstanceId --output text\", \"delete_cmd\": \"aws ec2 terminate-instances --instance-ids i-ff0475bcfce76dd66\", \"event\": \"created\", \"hourly\": 0.0832, \"id\": \"i-ff0475bcfce76dd66\", \"kind\": \"ec2\", \"note\": \"\", \"region\": \"\", \"session\": \"local-d4553442cd402d70a840776fbc5ee358738691ef312e8ee0bb937b10e2c6aa97\", \"size\": \"t3.large\", \"v\": 1}\n{\"at\": \"2026-11-10T06:03:25+00:00\", \"command\": \"aws ec2 terminate-instances --instance-ids i-ff0475bcfce76dd66\", \"event\": \"deleted\", \"id\": \"i-ff0475bcfce76dd66\", \"session\": \"local-d4553442cd402d70a840776fbc5ee358738691ef312e8ee0bb937b10e2c6aa97\", \"v\": 1}\n"
 }

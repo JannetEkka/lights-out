@@ -1,0 +1,24 @@
+
+☤ Hermes Agent Setup
+
+→ Checking for uv...
+✓ pinned uv found (uv 0.13.5 (x86_64-unknown-linux-gnu))
+→ Installing python + tools + dependencies via pm (hash-verified via uv.lock)...
+→ (first run on a fresh checkout can take 1-5 minutes)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+Python 3.14 is already installed
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+✓ ffmpeg
+✓ node
+✓ npm
+✓ pnpm
+✓ python
+✓ ripgrep
+✓ just
+✓ venv
+✓ test environment
+✓ chromium
+✓ cua-driver
+✓ Tools + dependencies installed (hash-verified via pm + uv.lock)
+
+session_id: local-27b06d996ed800ebf5d96243b396ea23df3ab2b6ada950e56fdfee45f682c3f5
