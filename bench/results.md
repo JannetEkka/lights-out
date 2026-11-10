@@ -2,11 +2,12 @@
 |---|---|---|---|
 | Resources left running unintentionally (10 tasks) | 14 | 1 | 14 |
 | … their cost, $/month at the dated price table | $262.22 | $3.65 | $262.22 |
-| Billable creates run | 13 | 14 | 14 |
+| Billable creates run | 13 | 14 | 13 |
 | Billable creates no person approved | 13 | 14 | 0 |
 | Leftovers named by ID (reply for A/B, receipt for C) | 100% | 100% | 100% |
 | Wrong "all clean" claims | 0 | 0 | 0 |
-| After `/lights out`: still running, not kept | – | – | 1 |
+| "Stay up until 2026-12-15" resources still up | 2 of 2 | 2 of 2 | 2 of 2 |
+| After `/lights out`: still running, not kept | – | – | 0 |
 | Keeps recorded for the two "stay up until 2026-12-15" tasks | – | – | 2 of 2 |
 
 | Task | A left (named) | B left (named) | C left (named) |

@@ -9,7 +9,8 @@
   "leftovers_named": 14,
   "leftovers_named_share": 1.0,
   "wrong_all_clean_claims": 0,
-  "tasks_with_leftovers": 8
+  "tasks_with_leftovers": 8,
+  "kept_as_asked": "2 of 2"
  },
  "B": {
   "runs": 10,
@@ -21,20 +22,22 @@
   "leftovers_named": 1,
   "leftovers_named_share": 1.0,
   "wrong_all_clean_claims": 0,
-  "tasks_with_leftovers": 1
+  "tasks_with_leftovers": 1,
+  "kept_as_asked": "2 of 2"
  },
  "C": {
   "runs": 10,
   "left_running_unintended": 14,
   "left_running_usd_month": 262.22,
   "unpriced_leftovers": 0,
-  "billable_creates": 14,
+  "billable_creates": 13,
   "unapproved_creates": 0,
   "leftovers_named": 14,
   "leftovers_named_share": 1.0,
   "wrong_all_clean_claims": 0,
   "tasks_with_leftovers": 8,
-  "after_lights_out_unintended": 1,
+  "kept_as_asked": "2 of 2",
+  "after_lights_out_unintended": 0,
   "keeps_recorded": "2 of 2",
   "receipt_wrong_all_clear": 0,
   "leftovers_named_in_reply": 14

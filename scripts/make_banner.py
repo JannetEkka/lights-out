@@ -24,19 +24,19 @@ x0, y0, x1, y1 = 600, 50, 1150, 560
 d.rectangle((x0, y0, x1, y1), fill=PAPER)
 for i in range(x0, x1 - 13, 14):
     d.polygon([(i, y1), (i + 7, y1 + 10), (i + 14, y1)], fill=PAPER)
-lines = [
+lines = [   # values from the measured run: bench/runs/C/t04-alb and t09-keep-demo
     ("──── LIGHTS OUT · session receipt ────", INK, mono),
     ("STILL RUNNING                  $/month", INK, bold),
-    ("  i-0a1b2c3d4e5f6  ec2 t3.large  60.74", RED, mono),
-    ("  db-test     rds db.t3.micro    12.41", RED, mono),
+    ("  i-063c0ce119c3f2f9d t3.micro    7.59", RED, mono),
+    ("  i-771cd5f963a2c4054 t3.micro    7.59", RED, mono),
+    ("  my-alb         elb application 16.43", RED, mono),
     ("KEPT ON PURPOSE (until 15 Dec 23:59)", INK, bold),
-    ("  i-9f8e7d6c5b4a3  ec2 t3.small", INK, mono),
-    ("                  ~16.97 by then", INK, mono),
+    ("  i-ba1100e2f8f795add t3.small", INK, mono),
+    ("                   ~17.74 by then", INK, mono),
     ("UNKNOWN (check by hand)      0 items", INK, mono),
     ("──────────────────────────────────────", INK, mono),
-    ("Billing now: $73.15/month", RED, bold),
+    ("Billing now: $31.61/month", RED, bold),
     ("→ /lights out  to turn them off", INK, mono),
-    ("", INK, mono),
     ("prices: AWS us-east-1 on-demand", FAINT, mono),
     ("read 2026-11-10", FAINT, mono),
 ]

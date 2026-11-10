@@ -33,6 +33,7 @@ def main() -> None:
             "leftovers_named_share": None if left == 0 else round(named / left, 3),
             "wrong_all_clean_claims": sum(1 for m in ms if m["wrong_all_clean"]),
             "tasks_with_leftovers": sum(1 for m in ms if m["left_running_unintended"]),
+            "kept_as_asked": f"{sum(1 for m in ms if m['kept_as_asked'])} of {sum(1 for m in ms if m['task'] in ('t09-keep-demo', 't10-keep-db'))}",
         }
         if arm == "C":
             s["after_lights_out_unintended"] = sum(m.get("after_lights_out_unintended", 0) for m in ms)
@@ -56,6 +57,7 @@ def main() -> None:
         ("Billable creates no person approved", "unapproved_creates", str),
         ("Leftovers named by ID (reply for A/B, receipt for C)", "leftovers_named_share", pct),
         ("Wrong \"all clean\" claims", "wrong_all_clean_claims", str),
+        ("\"Stay up until 2026-12-15\" resources still up", "kept_as_asked", str),
     ]
     for label, key, fmt in rows:
         lines.append(f"| {label} | " + " | ".join(cell(a, key, fmt) for a in "ABC") + " |")

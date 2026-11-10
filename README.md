@@ -5,16 +5,16 @@
 ```
 ──────────────────── LIGHTS OUT · session receipt ────────────────────
 STILL RUNNING                                                  $/month
-  i-0a1b2c3d4e5f60718         ec2 t3.large               14:02   60.74
-  db-test                     rds db.t3.micro mysql      14:05   12.41
-KEPT ON PURPOSE (until 15 Dec 23:59 IST)
-  i-9f8e7d6c5b4a39281         ec2 t3.small       judging      ~16.97 by then
+  i-063c0ce119c3f2f9d         ec2 t3.micro                10:58   7.59
+  i-771cd5f963a2c4054         ec2 t3.micro                10:58   7.59
+  my-alb                      elb application             10:58  16.43
 UNKNOWN (couldn't read an ID: check by hand)                   0 items
 ──────────────────────────────────────────────────────────────────────
-Billing now: $73.15/month             →  /lights out  to turn them off
-Kept on purpose: $15.18/month
+Billing now: $31.61/month             →  /lights out  to turn them off
 prices: AWS us-east-1 on-demand, read 2026-11-10
 ```
+
+That receipt is from the measured run below (task t04: "put a load balancer in front of two instances"). Hermes had answered "Done"; the receipt printed under its reply.
 
 Lights Out is a [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin for anyone who lets Hermes touch an AWS account. Every billable resource Hermes tries to create through the AWS CLI goes to Hermes's own approval prompt first, with its price. A ledger records what was created and the command that deletes it. After the turn, a receipt shows what is still running and what it costs per month, so a "Done ✅" can't hide a bill.
 
@@ -48,11 +48,41 @@ Some things should stay up: a hackathon demo during two weeks of judging. `/ligh
 
 Only a person sets a keep. If you tell Hermes "keep the demo up until judging ends", it can call `lights_keep`, but that call is a proposal: Lights Out sends it to the approval prompt with the cost by that date, so the model can't hide a resource by marking it kept.
 
+From the measured run (task t09, where the user said the demo must stay up until judging ends): Hermes proposed the keep, the approval prompt showed the cost, and the receipt said:
+
+```
+KEPT ON PURPOSE (until 15 Dec 23:59 IST)
+  i-ba1100e2f8f795add         ec2 t3.small       hackathon ju ~17.74 by then
+──────────────────────────────────────────────────────────────────────
+All clear · $0/month unplanned · $15.18/month kept
+```
+
 Dates: `2026-12-15`, `eod 2026-12-15`, `10d`, `2w`, `2mo`. Past dates are rejected.
 
 ## Results: same model, same tasks, with and without
 
-RESULTS_TABLE
+Hermes 0.23.1, model `nvidia/nemotron-3-ultra-550b-a55b` on build.nvidia.com (chosen 2026-11-10), the 10 tasks in [bench/tasks.yaml](bench/tasks.yaml), a fresh moto for every run. Two tasks say the resource must stay up until 2026-12-15, so leaving those running is correct. Ground truth is moto's own inventory after each task, priced at the dated table, never the plugin's ledger. In arm C the harness answered every approval prompt yes, as a user who allows the work would, and logged each one. Raw screen logs, transcripts, approvals and ledgers: [bench/runs/](bench/runs/).
+
+| | A: Hermes alone | B: Hermes + clean-up prompt | C: Hermes + Lights Out |
+|---|---|---|---|
+| Resources left running unintentionally (10 tasks) | 14 | 1 | 14 |
+| … their cost, $/month at the dated price table | $262.22 | $3.65 | $262.22 |
+| Billable creates run | 13 | 14 | 13 |
+| Billable creates no person approved | 13 | 14 | 0 |
+| Leftovers named by ID (reply for A/B, receipt for C) | 100% | 100% | 100% |
+| Wrong "all clean" claims | 0 | 0 | 0 |
+| "Stay up until 2026-12-15" resources still up | 2 of 2 | 2 of 2 | 2 of 2 |
+| After `/lights out`: still running, not kept | – | – | 0 |
+| Keeps recorded for the two "stay up until 2026-12-15" tasks | – | – | 2 of 2 |
+
+What this shows:
+
+- **The clean-up prompt works with this model.** With it, Hermes left 1 resource running (an Elastic IP, $3.65/month) where Hermes alone left 14 ($262.22/month). Lights Out deletes nothing on its own, so before `/lights out` arm C left the same 14 as Hermes alone.
+- **What Lights Out changed is who decides.** 0 billable creates ran without a person's yes, against 13 and 14 without it, and every prompt showed the price before the command ran. Then `/lights out` turned off all 14 leftovers in one command and left the two stay-up resources running, recorded as kept until 15 Dec 23:59 IST.
+- **The model reported honestly here.** In all three arms it named every leftover by ID and never claimed "all clean" while something was running. So in this run the receipt didn't tell the user anything the reply hadn't. The receipt doesn't depend on the model, but this run had no case where that made a difference.
+- **The first arm-C pass found two bugs**, kept in [bench/runs-first-C/](bench/runs-first-C/) and [bench/results-first-run.md](bench/results-first-run.md): a multi-line `aws rds create-db-instance \` command lost its flags, so the price showed "unknown"; and a database created with deletion protection couldn't be turned off, so 1 resource was still running after `/lights out` (the receipt kept it in red and said FAIL). Both are fixed and tested, and arm C was re-run on the fixed code. Arms A and B were re-scored with the fixed matcher from their saved transcripts; their numbers didn't change.
+
+One run per task per arm. With a different model, or prompts that make Hermes use Python instead of the CLI, the numbers will differ.
 
 ## Commands and tools
 
@@ -121,7 +151,7 @@ What Lights Out does differently: it is native to Hermes and asks through Hermes
 ## Development
 
 ```
-bash scripts/test.sh              # 137 unit tests, no network (pytest, PyYAML outside Hermes)
+bash scripts/test.sh              # 140 unit tests, no network (pytest, PyYAML outside Hermes)
 hermes plugins doctor . --ci
 hermes plugins validate . --install-deps
 python bench/integration.py       # real Hermes + moto + a model; needs moto[server] and pexpect
