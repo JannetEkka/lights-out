@@ -30,6 +30,15 @@ NOT_FOUND = re.compile(
     r"InvalidInstanceID\.NotFound|InvalidVolume\.NotFound|InvalidAllocationID\.NotFound|NatGatewayNotFound|"
     r"NatGatewayMalformed|LoadBalancerNotFound|DBInstanceNotFound|NoSuchBucket|\(404\)|Not Found", re.I)
 GONE_STATES = {"terminated", "deleted", "shutting-down"}
+# When a turn-off fails for a known reason, say what to run (Lights Out doesn't run it for you).
+DELETE_HINTS = {
+    "rds": (re.compile(r"protected DB|DeletionProtection", re.I),
+            "deletion protection is on; to allow the delete: aws rds modify-db-instance "
+            "--db-instance-identifier {id} --no-deletion-protection --apply-immediately"),
+    "ec2": (re.compile(r"OperationNotPermitted|DisableApiTermination", re.I),
+            "termination protection is on; to allow it: aws ec2 modify-instance-attribute "
+            "--instance-id {id} --no-disable-api-termination"),
+}
 
 
 class LightsOut:
@@ -284,6 +293,9 @@ class LightsOut:
             else:
                 why = (err or out or "no output").strip().splitlines()
                 lines.append(f"  FAIL  {r.kind:<4} {short_id(r.id, 40)}: {why[-1][:120] if why else ''}")
+                hint = DELETE_HINTS.get(r.kind)
+                if hint and hint[0].search(f"{out}\n{err}"):
+                    lines.append("        " + hint[1].format(id=r.id))
         return "Lights Out: turning off\n" + "\n".join(lines) + "\n\n" + self.receipt(session=session)
 
     # -- /lights check ---------------------------------------------------------------------

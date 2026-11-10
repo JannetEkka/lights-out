@@ -229,3 +229,11 @@ def test_unknown_stays_unknown_when_counts_differ(svc):
     run = lambda c: terminal('{"Addresses":[{"AllocationId":"eipalloc-1"},{"AllocationId":"eipalloc-2"}]}')
     svc.post_terminal("aws ec2 allocate-address --query PublicIp --output text", terminal("1.2.3.4"), "s1", run_terminal=run)
     assert len(svc.state().unknowns) == 1
+
+
+def test_protected_db_failure_gives_the_fix(svc):
+    svc.post_terminal("aws rds create-db-instance --db-instance-identifier db1 --db-instance-class db.t3.micro --engine postgres",
+                      terminal('{"DBInstance":{"DBInstanceIdentifier":"db1"}}'), "s1")
+    err = terminal("An error occurred (InvalidParameterCombination) when calling the DeleteDBInstance operation: Cannot delete protected DB Instance", 255)
+    out = svc.lights_out(lambda c: err, lambda q, ch: "yes", confirmed=False, session="s1")
+    assert "FAIL" in out and "--no-deletion-protection" in out and svc.state().running()

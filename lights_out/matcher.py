@@ -99,6 +99,7 @@ def load_rules(path: str | None = None) -> dict:
 def split_simple_commands(command: str) -> list[list[str]]:
     """Split a command line into simple commands (lists of words). Unparseable quoting falls back
     to a plain whitespace split so a stray quote can't hide an ``aws`` create."""
+    command = re.sub(r"\\\r?\n", " ", command.replace("\r\n", "\n"))   # line continuations
     lex = shlex.shlex(command.replace("\r", ""), posix=True, punctuation_chars=";&|()\n")
     lex.whitespace = " \t"
     lex.whitespace_split = True

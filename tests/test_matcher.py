@@ -167,3 +167,15 @@ def test_price_nat_eip_elb_s3():
     assert round(price("aws ec2 allocate-address").monthly(), 2) == 3.65
     assert round(price("aws elbv2 create-load-balancer --name x --type network").monthly(), 2) == 16.43
     assert price("aws s3 mb s3://x").hourly == 0.0
+
+
+def test_backslash_line_continuations():
+    cmd = ("aws rds create-db-instance \\\n  --db-instance-identifier test-db \\\n  --db-instance-class db.t3.micro \\\n"
+           "  --engine postgres \\\n  --allocated-storage 20")
+    ms = match_command(cmd)
+    assert [(m.action, m.key) for m in ms] == [("create", "rds:create")]
+    assert price_for(ms[0]).hourly is not None and ms[0].flag("--db-instance-identifier") == "test-db"
+
+
+def test_newline_still_separates_commands():
+    assert keys("aws s3 mb s3://a\naws ec2 allocate-address") == [("create", "s3:create"), ("create", "eip:create")]
