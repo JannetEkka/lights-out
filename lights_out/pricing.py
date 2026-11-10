@@ -117,7 +117,7 @@ def price_for(m: Match, table: dict | None = None) -> Price:
         total = float(hourly)
         if storage and storage.isdigit() and stype in ("gp2", "gp3"):
             total += int(storage) * float(t["rds_storage_gb_month"]) / float(t["hours_per_month"])
-            size += f" {storage} GiB"
+            note = f"incl. {storage} GiB storage"
         elif storage:
             note = f"+ {stype} storage"
         return Price(total, size, 1, note)

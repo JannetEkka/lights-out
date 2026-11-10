@@ -95,6 +95,7 @@ class Session:
 def run_session(*, prompt: str, env: dict, workdir: Path, raw_log: Path,
                 answer: Callable[[str], str] = lambda box: "yes",
                 followups: Optional[list[str]] = None, idle_secs: float = 25.0,
+                after_first_turn: Optional[Callable[[], None]] = None,
                 turn_timeout: float = 900.0) -> Session:
     """Run one interactive session. ``answer(box_text)`` returns "yes" or "no" for each approval."""
     sess = Session(raw_log=raw_log)
@@ -150,6 +151,9 @@ def run_session(*, prompt: str, env: dict, workdir: Path, raw_log: Path,
                 return
 
     wait_turn()
+    sess.screen = clean(buf)
+    if after_first_turn:
+        after_first_turn()
     for line in followups or []:
         child.send(line + "\r")
         time.sleep(1)
@@ -291,6 +295,8 @@ def named(item: dict, text: str) -> bool:
     """Is this resource named, by its ID, in *text*? (ELBs: the ARN or the load balancer's name.)"""
     if item["id"] in text:
         return True
+    if item["kind"] == "eip" and item.get("size") and re.search(rf"\b{re.escape(item['size'])}\b", text):
+        return True   # an Elastic IP is named by its public address too
     if item["kind"] == "elb" and item.get("name") and re.search(rf"\b{re.escape(item['name'])}\b", text):
         return True
     return False

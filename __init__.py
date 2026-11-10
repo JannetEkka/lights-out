@@ -101,7 +101,7 @@ def register(ctx) -> None:
         if tool_name != "terminal":
             return None
         try:
-            lo().post_terminal((args or {}).get("command"), result, session_of(kw))
+            lo().post_terminal((args or {}).get("command"), result, session_of(kw), run_terminal=run_terminal)
         except Exception:
             log.exception("lights-out: could not record a terminal call")
         return None

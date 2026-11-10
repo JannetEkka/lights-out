@@ -116,8 +116,11 @@ class LightsOut:
         return True, (r, until)
 
     # -- post_tool_call --------------------------------------------------------------------
-    def post_terminal(self, command: Any, result: Any, session: str) -> list[dict]:
-        """Write what a terminal call created or deleted. Returns the ledger records written."""
+    def post_terminal(self, command: Any, result: Any, session: str,
+                      run_terminal: Optional[Callable[[str], Any]] = None) -> list[dict]:
+        """Write what a terminal call created or deleted. Returns the ledger records written.
+        If a create ran but its output had no ID (``--query ... --output text``), and *run_terminal*
+        is given, list that resource type read-only and pair it, only when the counts match exactly."""
         written: list[dict] = []
         matches = match_command(command, self.rules)
         if not matches:
@@ -144,6 +147,11 @@ class LightsOut:
                 for rid in oc.ids:
                     if rid in st.resources and st.resources[rid].status == "running":
                         written.append(self.ledger.deleted(rid=rid, session=session, command=m.segment))
+        if run_terminal is not None and any(w.get("event") == "unknown" for w in written):
+            try:
+                self._resolve_unknowns(run_terminal, self.state(), session, [])
+            except Exception:
+                log.exception("lights-out: could not resolve an unknown create")
         return written
 
     # -- keeps -----------------------------------------------------------------------------
@@ -306,11 +314,12 @@ class LightsOut:
             else:
                 last = (text.strip().splitlines() or ["no output"])[-1][:100]
                 lines.append(f"  ?        {r.kind:<4} {short_id(r.id, 40)}: couldn't check, ledger unchanged ({last})")
-        resolved = self._resolve_unknowns(run_terminal, st, session, lines)
+        resolved = self._resolve_unknowns(run_terminal, st, session, lines, how="matched by /lights check")
         head = f"Lights Out check: {changed} marked gone, {resolved} unknown{'s' if resolved != 1 else ''} resolved."
         return head + ("\n" + "\n".join(lines) if lines else "\n  (nothing in the ledger to check)")
 
-    def _resolve_unknowns(self, run_terminal, st: State, session: str, lines: list) -> int:
+    def _resolve_unknowns(self, run_terminal, st: State, session: str, lines: list,
+                          how: str = "matched by a read-only list right after the create") -> int:
         if not st.unknowns:
             return 0
         rules_by_kind = {r["kind"]: r for r in self.rules["creates"]}
@@ -335,7 +344,7 @@ class LightsOut:
                     self.ledger.created(rid=rid, kind=kind, size=u.size, hourly=u.hourly, note="",
                                         delete_cmd=rule["delete"].format(id=rid), session=u.session,
                                         command=u.command, region="")
-                    self.ledger.resolved(uid=u.uid, session=session, how="matched by /lights check", rid=rid)
+                    self.ledger.resolved(uid=u.uid, session=session, how=how, rid=rid)
                     lines.append(f"  found    {kind:<4} {short_id(rid, 40)} (was unknown)")
                     resolved += 1
             else:

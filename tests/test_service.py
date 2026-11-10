@@ -212,3 +212,20 @@ def test_session_notice_for_leftovers(svc):
     assert svc.notice("s1") == ""
     note = svc.notice("s2")
     assert "from earlier sessions still running" in note and "15.18" in note
+
+
+def test_unknown_resolved_right_after_the_create(svc):
+    listed = []
+    def run(cmd):
+        listed.append(cmd)
+        return terminal('{"Addresses":[{"AllocationId":"eipalloc-0aa11bb22","PublicIp":"1.2.3.4"}]}')
+    svc.post_terminal("aws ec2 allocate-address --query PublicIp --output text", terminal("1.2.3.4"), "s1", run_terminal=run)
+    st = svc.state()
+    assert listed and listed[0].startswith("aws ec2 describe-addresses")
+    assert not st.unknowns and st.resources["eipalloc-0aa11bb22"].status == "running"
+
+
+def test_unknown_stays_unknown_when_counts_differ(svc):
+    run = lambda c: terminal('{"Addresses":[{"AllocationId":"eipalloc-1"},{"AllocationId":"eipalloc-2"}]}')
+    svc.post_terminal("aws ec2 allocate-address --query PublicIp --output text", terminal("1.2.3.4"), "s1", run_terminal=run)
+    assert len(svc.state().unknowns) == 1

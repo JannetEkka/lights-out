@@ -12,7 +12,7 @@ from typing import Iterable, Optional
 
 from .ledger import Resource, State, Unknown
 
-WIDTH = 64
+WIDTH = 70
 RED, GREEN, AMBER, DIM, BOLD, RESET = "\033[31m", "\033[32m", "\033[33m", "\033[2m", "\033[1m", "\033[0m"
 
 
@@ -58,7 +58,7 @@ def cost_until(r: Resource, now: datetime) -> Optional[float]:
     return r.hourly * max(0.0, (r.keep_until - now).total_seconds() / 3600.0)
 
 
-def short_id(rid: str, n: int = 19) -> str:
+def short_id(rid: str, n: int = 28) -> str:
     if rid.startswith("arn:") and "/" in rid:
         parts = rid.split("/")
         rid = parts[-2] if len(parts) >= 3 else parts[-1]
@@ -116,7 +116,7 @@ def _render_bill(s: Summary, now: datetime, tz: tzinfo, prices_read: str, region
     lines = [("─" * pad) + title + ("─" * (WIDTH - pad - len(title)))]
 
     def res_line(r: Resource) -> str:
-        left = f"  {short_id(r.id):<20} {r.kind:<4}{r.size[:24]:<24}"
+        left = f"  {short_id(r.id):<27} {r.kind:<4}{r.size[:22]:<22}"
         right = money(r.hourly * 730 if r.hourly is not None else None)
         return _row(left + f" {_when(r.created_at, now, tz):>6}", right)
 
@@ -136,7 +136,7 @@ def _render_bill(s: Summary, now: datetime, tz: tzinfo, prices_read: str, region
         for label, rs in groups.items():
             lines.append(f"KEPT ON PURPOSE (until {label})")
             for r in rs:
-                left = f"  {short_id(r.id):<20} {r.kind:<4}{r.size[:16]:<16} {r.keep_why[:12]:<12}"
+                left = f"  {short_id(r.id):<27} {r.kind:<4}{r.size[:14]:<14} {r.keep_why[:12]:<12}"
                 c = cost_until(r, now)
                 lines.append(_row(left, f"~{money(c)} by then" if c is not None else "price ?"))
     n_unk = len(s.unknowns)
