@@ -4,3 +4,5 @@ __pycache__/
 bench/work/
 bench/*/work/
 bench/work/
+demo/work/
+demo/moto.log

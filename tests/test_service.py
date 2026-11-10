@@ -91,6 +91,7 @@ def test_keep_proposal_goes_to_approval(svc):
     rid = seeded(svc)
     d = svc.pre_keep({"id": rid, "until": "2026-12-15", "why": "judging"})
     assert d["action"] == "approve" and "KEEP" in d["message"] and "by then" in d["message"]
+    assert "price ?" not in d["message"] and "~$" in d["message"]
     assert d["rule_key"] == f"lights-out:keep:{rid}:2026-12-15"
     assert svc.state().resources[rid].keep_until is None     # nothing set until a person approves
 

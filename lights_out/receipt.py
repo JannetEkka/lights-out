@@ -52,10 +52,11 @@ def money(x: Optional[float]) -> str:
     return "price ?" if x is None else f"{x:,.2f}"
 
 
-def cost_until(r: Resource, now: datetime) -> Optional[float]:
-    if r.hourly is None or r.keep_until is None:
+def cost_until(r: Resource, now: datetime, until: Optional[datetime] = None) -> Optional[float]:
+    end = until or r.keep_until
+    if r.hourly is None or end is None:
         return None
-    return r.hourly * max(0.0, (r.keep_until - now).total_seconds() / 3600.0)
+    return r.hourly * max(0.0, (end - now).total_seconds() / 3600.0)
 
 
 def short_id(rid: str, n: int = 28) -> str:

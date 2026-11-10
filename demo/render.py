@@ -21,6 +21,7 @@ W, H, FPS = 1920, 1080, 15
 TERM_H = 900
 GAP_CAP = 0.6
 FONT = "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-{}.ttf"
+TERM_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono{}.ttf"   # wider glyph coverage for the terminal
 BG, FG, PAPER, RED, GREEN, AMBER, DIM = (24, 23, 21), (225, 222, 214), (246, 243, 235), (214, 48, 48), (64, 178, 96), (214, 160, 40), (120, 116, 108)
 PALETTE = {"black": (40, 40, 40), "red": RED, "green": GREEN, "brown": AMBER, "yellow": AMBER,
            "blue": (90, 140, 220), "magenta": (190, 110, 200), "cyan": (80, 180, 190), "white": FG,
@@ -51,13 +52,13 @@ class Term:
         self.cols, self.rows = cols, rows
         size = 26
         while True:
-            f = ImageFont.truetype(FONT.format("Regular"), size)
+            f = ImageFont.truetype(TERM_FONT.format(""), size)
             cw = f.getlength("M")
             if cw * cols <= W - 80 and size * 1.0 * rows <= TERM_H - 40 or size <= 12:
                 break
             size -= 1
         self.font = f
-        self.bold = ImageFont.truetype(FONT.format("Bold"), size)
+        self.bold = ImageFont.truetype(TERM_FONT.format("-Bold"), size)
         self.cw, self.ch = cw, int(size * 1.0) + 2
         self.ox = (W - cw * cols) / 2
         self.oy = 20
@@ -165,28 +166,31 @@ def end_card():
 def main() -> None:
     head, events = load_cast(HERE / "demo.cast")
     ev = compress(events)
-    marks = {}
+    marks, all_marks = {}, []
     for ct, kind, data in ev:
         if kind == "m":
             marks.setdefault(data, ct)
+            all_marks.append((ct, data))
+    keep_box = [ct for ct, d in all_marks if d == "approval" and marks["turn2"] < ct <= marks["turn2_done"]]
     end_ct = ev[-1][0]
     first_approved = marks.get("approved", marks.get("turn1_done"))
     out_start = marks.get("out", marks.get("out_yes"))
     scenes = [
         # (start, end, seconds on screen, caption) ; None = card
-        (marks["turn1_done"] - 6, marks["turn1_done"], 10, "Done shouldn't mean still billing."),
-        (marks["turn1"], first_approved + 1.0, 15, "Nothing billable starts without your yes, and its price"),
-        (marks["turn2"], marks["turn2_done"], 15, "Keep it on purpose, until a date"),
-        ("results", None, 20, "Same model, same tasks: alone, with a prompt, with Lights Out"),
-        (out_start, marks.get("end", end_ct), 20, "One command to turn it all off"),
-        ("end", None, 8, "Lights Out for Hermes Agent"),
+        # (start, end, seconds on screen, caption, seconds to hold the last frame); a str start = card
+        (marks["turn1_done"] - 6, marks["turn1_done"], 10, "Done shouldn't mean still billing.", 2),
+        (marks["turn1"], marks["approval"] + 0.3, 15, "Nothing billable starts without your yes, and its price", 4),
+        (marks["turn2"], (keep_box[-1] + 0.3) if keep_box else marks["turn2_done"], 15, "Keep it on purpose, until a date", 4),
+        ("results", None, 20, "Same model, same tasks: alone, with a prompt, with Lights Out", 0),
+        (out_start, marks.get("end", end_ct), 20, "One command to turn it all off", 0),
+        ("end", None, 8, "Lights Out for Hermes Agent", 0),
     ]
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p",
                            "-crf", "20", "-movflags", "+faststart", str(HERE / "lights-out-demo.mp4")],
                           stdin=subprocess.PIPE)
     total = 0
-    for start, stop, secs, text in scenes:
+    for start, stop, secs, text, hold in scenes:
         n = int(secs * FPS)
         total += secs
         if start in ("results", "end"):
@@ -204,7 +208,7 @@ def main() -> None:
                 term.feed(ev[i][2])
             i += 1
         length = max(0.1, stop - start)
-        speed = max(1.0, length / secs)
+        speed = max(1.0, length / max(1, secs - hold))
         for k in range(n):
             t = start + min(length, k / FPS * speed)
             while i < len(ev) and ev[i][0] <= t:

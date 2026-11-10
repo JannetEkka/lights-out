@@ -102,7 +102,7 @@ class LightsOut:
         if not ok:
             return {"action": "block", "message": f"Lights Out: {info}"}
         r, until = info
-        c = cost_until(r, self.clock())
+        c = cost_until(r, self.clock(), until)
         why = str(args.get("why") or "").strip()
         local = until.astimezone(self.tz)
         msg = (f"Hermes proposes to KEEP {KIND_NAMES.get(r.kind, r.kind)} {r.id} ({r.size}) running until "
@@ -171,7 +171,7 @@ class LightsOut:
         r, until = info
         self.ledger.keep(rid=r.id, until=until, why=why, by=by, session=session)
         local = until.astimezone(self.tz)
-        c = cost_until(r, self.clock())
+        c = cost_until(r, self.clock(), until)
         return (f"Kept on purpose: {KIND_NAMES.get(r.kind, r.kind)} {r.id} ({r.size}) until "
                 f"{local:%d %b %Y %H:%M} {local.tzname()}, ~${money(c)} by then.")
 
@@ -271,10 +271,10 @@ class LightsOut:
         return sorted(s.unplanned + s.expired, key=lambda r: (OFF_ORDER.get(r.kind, 9), r.created_at))
 
     def lights_out(self, run_terminal: Callable[[str], Any], ask: Callable[[str, list], Optional[str]],
-                   *, confirmed: bool, session: str) -> str:
+                   *, confirmed: bool, session: str, color: bool = False) -> str:
         targets = self.out_targets()
         if not targets:
-            return "Lights Out: nothing to turn off.\n\n" + self.receipt(session=session)
+            return "Lights Out: nothing to turn off.\n\n" + self.receipt(session=session, color=color)
         total = sum((r.hourly or 0) * self.hpm for r in targets)
         listing = "\n".join(f"  {r.kind:<4} {short_id(r.id, 40):<40} {r.delete_cmd}" for r in targets)
         if not confirmed:
@@ -296,7 +296,7 @@ class LightsOut:
                 hint = DELETE_HINTS.get(r.kind)
                 if hint and hint[0].search(f"{out}\n{err}"):
                     lines.append("        " + hint[1].format(id=r.id))
-        return "Lights Out: turning off\n" + "\n".join(lines) + "\n\n" + self.receipt(session=session)
+        return "Lights Out: turning off\n" + "\n".join(lines) + "\n\n" + self.receipt(session=session, color=color)
 
     # -- /lights check ---------------------------------------------------------------------
     def check(self, run_terminal: Callable[[str], Any], *, session: str) -> str:

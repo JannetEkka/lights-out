@@ -82,7 +82,8 @@ def register(ctx) -> None:
 
     def use_color(platform: str) -> bool:
         mode = str(cfg("color", "auto")).lower()
-        return mode == "always" or (mode == "auto" and platform in ("cli", ""))
+        # auto: terminals only (classic CLI, the CLI's local gateway session, the TUI); never chat apps
+        return mode == "always" or (mode == "auto" and platform in ("cli", "local", "tui", ""))
 
     def run_terminal(command: str) -> Any:
         # Hermes's own terminal tool: its guards and the user's approval rules apply as usual.
@@ -148,8 +149,7 @@ def register(ctx) -> None:
             _posted[session_id] = size
             svc = lo()
             if svc.touched(session_id):
-                ctx.post_message(svc.receipt(color=str(cfg("color", "auto")).lower() == "always",
-                                             session=session_id))
+                ctx.post_message(svc.receipt(color=use_color(str(kw.get("platform", ""))), session=session_id))
         except Exception:
             log.exception("lights-out: per-turn receipt failed")
         return None
@@ -203,7 +203,8 @@ def register(ctx) -> None:
                 return json.dumps(svc.status(), indent=2)
             if sub == "out":
                 confirmed = len(parts) > 1 and parts[1].lower() in ("yes", "y")
-                return svc.lights_out(run_terminal, ctx.ask_choice, confirmed=confirmed, session=session)
+                return svc.lights_out(run_terminal, ctx.ask_choice, confirmed=confirmed, session=session,
+                                      color=use_color(str(kw.get("platform", ""))))
             if sub == "keep":
                 if len(parts) < 3:
                     return "Usage: /lights keep <id> <2026-12-15 | eod 2026-12-15 | 10d | 2w | 2mo> [why]"
