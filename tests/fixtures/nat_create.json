@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 create-nat-gateway --subnet-id subnet-f1262625363b48776 --allocation-id eipalloc-038f1bc9967776b09",
+ "output": "{\n    \"NatGateway\": {\n        \"CreateTime\": \"2026-11-10T04:09:54.000Z\",\n        \"NatGatewayAddresses\": [\n            {\n                \"AllocationId\": \"eipalloc-038f1bc9967776b09\",\n                \"NetworkInterfaceId\": \"eni-c4a0242a7365453ad\",\n                \"PrivateIp\": \"10.128.150.105\",\n                \"PublicIp\": \"127.227.219.163\",\n                \"AssociationId\": \"eipassoc-8a653612784742346\"\n            }\n        ],\n        \"NatGatewayId\": \"nat-8e615857c97486b32\",\n        \"State\": \"available\",\n        \"SubnetId\": \"subnet-f1262625363b48776\",\n        \"VpcId\": \"vpc-4fd212fde534e7dd1\",\n        \"Tags\": []\n    }\n}",
+ "exit_code": 0
+}

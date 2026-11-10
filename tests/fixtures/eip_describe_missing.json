@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 describe-addresses --allocation-ids eipalloc-0123456789abcdef0 --output json",
+ "output": "\nAn error occurred (InvalidAllocationID.NotFound) when calling the DescribeAddresses operation: Allocation ID '{'eipalloc-0123456789abcdef0'}' not found.",
+ "exit_code": 255
+}

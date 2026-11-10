@@ -1,0 +1,5 @@
+{
+ "command": "aws s3 rb s3://report-bucket-2 --force",
+ "output": "remove_bucket: report-bucket-2",
+ "exit_code": 0
+}

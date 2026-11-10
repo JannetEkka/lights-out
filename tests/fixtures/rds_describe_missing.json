@@ -1,0 +1,5 @@
+{
+ "command": "aws rds describe-db-instances --db-instance-identifier db-test --output json",
+ "output": "\nAn error occurred (DBInstanceNotFound) when calling the DescribeDBInstances operation: DBInstance db-test not found.",
+ "exit_code": 255
+}

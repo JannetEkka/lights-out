@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 create-volume --size 100 --volume-type gp3 --availability-zone us-east-1a",
+ "output": "{\n    \"Iops\": 3000,\n    \"VolumeType\": \"gp3\",\n    \"VolumeId\": \"vol-9c74ed8310a97a0d2\",\n    \"Size\": 100,\n    \"AvailabilityZone\": \"us-east-1a\",\n    \"State\": \"available\",\n    \"CreateTime\": \"2026-11-10T04:09:52.000Z\",\n    \"Attachments\": [],\n    \"Encrypted\": false\n}",
+ "exit_code": 0
+}
