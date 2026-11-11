@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 terminate-instances --instance-ids i-1497fbc520e6c10d1",
+ "output": "{\n    \"TerminatingInstances\": [\n        {\n            \"InstanceId\": \"i-1497fbc520e6c10d1\",\n            \"CurrentState\": {\n                \"Code\": 32,\n                \"Name\": \"shutting-down\"\n            },\n            \"PreviousState\": {\n                \"Code\": 16,\n                \"Name\": \"running\"\n            }\n        }\n    ]\n}",
+ "exit_code": 0
+}

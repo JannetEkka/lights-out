@@ -1,0 +1,66 @@
+{
+ "task": "t04-alb",
+ "arm": "C",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "session_id": "local-c1c15cdc8d987a1888e554b0f42699b50b4e837eb92f482e4aed2913d6fc3e85",
+ "left_running_unintended": 3,
+ "left_running_unintended_usd_month": 31.61,
+ "unintended_unpriced": 0,
+ "kept_as_asked": 0,
+ "billable_create_commands": 3,
+ "unattributed_resources": [],
+ "non_cli_aws_calls": [],
+ "unapproved_creates": 0,
+ "approvals_logged": [
+  {
+   "answer": "yes",
+   "lights_out": true
+  },
+  {
+   "answer": "yes",
+   "lights_out": true
+  },
+  {
+   "answer": "yes",
+   "lights_out": true
+  }
+ ],
+ "leftovers_named": 3,
+ "leftovers_named_ids": [
+  "i-8bee48a7ddca8989e",
+  "i-fdcdbfc0968fd620d",
+  "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-alb/1265af70bae280b9"
+ ],
+ "leftovers_named_in_reply": 3,
+ "reply_claims_all_clean": false,
+ "wrong_all_clean": false,
+ "final_reply": "Done. The Application Load Balancer is **active** with both targets healthy.\n\n**Summary:**\n- **VPC**: vpc-ec35a65bb3f3ec188 (default)\n- **ALB**: `my-alb` (arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-alb/1265af70bae280b9)\n- **DNS**: `my-alb-1.us-east-1.elb.amazonaws.com`\n- **State**: `active`\n- **Subnets**: subnet-73a651c4651acce0a (us-east-1a), subnet-65b247fc6b35ca53e (us-east-1b)\n- **Security Group**: sg-cd2870ea1a0e6c9e2 (HTTP/HTTPS from 0.0.0.0/0)\n\n**Instances (t3.micro, ami-12345678):**\n- i-8bee48a7ddca8989e (subnet-73a651c4651acce0a) \u2014 **healthy**\n- i-fdcdbfc0968fd620d (subnet-65b247fc6b35ca53e) \u2014 **healthy**\n\n**Target Group**: `my-target-group` (instance targets, port 80)\n**Listener**: HTTP:80 \u2192 forward to target group",
+ "moto_end": [
+  {
+   "kind": "ec2",
+   "id": "i-8bee48a7ddca8989e",
+   "size": "t3.micro",
+   "usd_month": 7.592
+  },
+  {
+   "kind": "ec2",
+   "id": "i-fdcdbfc0968fd620d",
+   "size": "t3.micro",
+   "usd_month": 7.592
+  },
+  {
+   "kind": "elb",
+   "id": "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-alb/1265af70bae280b9",
+   "size": "application",
+   "name": "my-alb",
+   "usd_month": 16.425
+  }
+ ],
+ "receipt": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 LIGHTS OUT \u00b7 session receipt \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nSTILL RUNNING                                                  $/month\n  i-8bee48a7ddca8989e         ec2 t3.micro                10:40   7.59\n  i-fdcdbfc0968fd620d         ec2 t3.micro                10:40   7.59\n  my-alb                      elb application             10:40  16.43\nUNKNOWN (couldn't read an ID: check by hand)                   0 items\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nBilling now: $31.61/month             \u2192  /lights out  to turn them off\nprices: AWS us-east-1 on-demand, read 2026-11-10",
+ "receipt_all_clear": false,
+ "receipt_wrong_all_clear": false,
+ "moto_after_lights_out": [],
+ "after_lights_out_unintended": 0,
+ "prompt": "Put an application load balancer in front of two t3.micro instances (image ami-12345678) in the default VPC, using the aws CLI, and check it shows as active.",
+ "finished": "2026-11-10T05:11:49Z"
+}

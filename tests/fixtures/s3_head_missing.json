@@ -1,0 +1,5 @@
+{
+ "command": "aws s3api head-bucket --bucket report-bucket-2",
+ "output": "\nAn error occurred (404) when calling the HeadBucket operation: Not Found",
+ "exit_code": 255
+}

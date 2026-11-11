@@ -1,0 +1,57 @@
+{
+ "started": "2026-11-10T06:01:43Z",
+ "checks": [
+  {
+   "check": "no: approval prompt shown with price",
+   "pass": true,
+   "detail": {
+    "approvals": 2
+   }
+  },
+  {
+   "check": "no: nothing in moto",
+   "pass": true,
+   "detail": []
+  },
+  {
+   "check": "no: nothing created in ledger",
+   "pass": true,
+   "detail": []
+  },
+  {
+   "check": "yes: ledger ID is moto's instance ID",
+   "pass": true,
+   "detail": {
+    "ledger": [
+     "i-ff0475bcfce76dd66"
+    ],
+    "moto": [
+     "i-ff0475bcfce76dd66"
+    ]
+   }
+  },
+  {
+   "check": "/lights out: moto has nothing running",
+   "pass": true,
+   "detail": []
+  },
+  {
+   "check": "/lights out: ledger shows it deleted",
+   "pass": true,
+   "detail": [
+    "deleted"
+   ]
+  },
+  {
+   "check": "receipt printed after the turn",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "green all clear after /lights out",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "ledger": "{\"at\": \"2026-11-10T06:02:55+00:00\", \"command\": \"aws ec2 run-instances --image-id ami-12345678 --instance-type t3.large --query Instances[0].InstanceId --output text\", \"delete_cmd\": \"aws ec2 terminate-instances --instance-ids i-ff0475bcfce76dd66\", \"event\": \"created\", \"hourly\": 0.0832, \"id\": \"i-ff0475bcfce76dd66\", \"kind\": \"ec2\", \"note\": \"\", \"region\": \"\", \"session\": \"local-d4553442cd402d70a840776fbc5ee358738691ef312e8ee0bb937b10e2c6aa97\", \"size\": \"t3.large\", \"v\": 1}\n{\"at\": \"2026-11-10T06:03:25+00:00\", \"command\": \"aws ec2 terminate-instances --instance-ids i-ff0475bcfce76dd66\", \"event\": \"deleted\", \"id\": \"i-ff0475bcfce76dd66\", \"session\": \"local-d4553442cd402d70a840776fbc5ee358738691ef312e8ee0bb937b10e2c6aa97\", \"v\": 1}\n"
+}

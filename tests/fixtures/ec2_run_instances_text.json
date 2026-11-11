@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 run-instances --image-id ami-12345678 --instance-type t3.micro --query Instances[0].InstanceId --output text",
+ "output": "i-cf413194d78c2becd",
+ "exit_code": 0
+}

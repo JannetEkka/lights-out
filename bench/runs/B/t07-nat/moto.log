@@ -1,0 +1,19 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:40043
+Press CTRL+C to quit
+127.0.0.1 - - [10/Nov/2026 04:58:51] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:58:55] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:58:57] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:00] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:07] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:07] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:10] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:11] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:11] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:41] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:41] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:42] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:42] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:42] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:42] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2026 04:59:42] "GET / HTTP/1.1" 200 -

@@ -1,0 +1,59 @@
+{
+ "task": "t09-keep-demo",
+ "arm": "C",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "session_id": "local-7ca982a9c6e2555fbf33fa2930c8061ddfc09dbe5bd94830f293ff527cdacb8b",
+ "left_running_unintended": 0,
+ "left_running_unintended_usd_month": 0,
+ "unintended_unpriced": 0,
+ "kept_as_asked": 1,
+ "billable_create_commands": 1,
+ "unattributed_resources": [],
+ "non_cli_aws_calls": [],
+ "unapproved_creates": 0,
+ "approvals_logged": [
+  {
+   "answer": "yes",
+   "lights_out": true
+  },
+  {
+   "answer": "yes",
+   "lights_out": true
+  }
+ ],
+ "leftovers_named": 0,
+ "leftovers_named_ids": [],
+ "leftovers_named_in_reply": 0,
+ "reply_claims_all_clean": false,
+ "wrong_all_clean": false,
+ "final_reply": "Launched **i-b806f5c087b73c0f8** (t3.small, ami-12345678) and marked it to stay up until **2026-12-15** for the hackathon judges.",
+ "moto_end": [
+  {
+   "kind": "ec2",
+   "id": "i-b806f5c087b73c0f8",
+   "size": "t3.small",
+   "usd_month": 15.184
+  }
+ ],
+ "receipt": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 LIGHTS OUT \u00b7 session receipt \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nKEPT ON PURPOSE (until 15 Dec 23:59 IST)\n  i-b806f5c087b73c0f8         ec2 t3.small       hackathon ju ~17.75 by then\nUNKNOWN (couldn't read an ID: check by hand)                   0 items\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAll clear \u00b7 $0/month unplanned \u00b7 $15.18/month kept\nprices: AWS us-east-1 on-demand, read 2026-11-10",
+ "receipt_all_clear": true,
+ "receipt_wrong_all_clear": false,
+ "moto_after_lights_out": [
+  {
+   "kind": "ec2",
+   "id": "i-b806f5c087b73c0f8",
+   "size": "t3.small"
+  }
+ ],
+ "after_lights_out_unintended": 0,
+ "keep_recorded": true,
+ "keep_detail": [
+  {
+   "id": "i-b806f5c087b73c0f8",
+   "until": "2026-12-15T18:29:00+00:00",
+   "by": "approved proposal from Hermes"
+  }
+ ],
+ "prompt": "Launch a t3.small demo server (image ami-12345678) with the aws CLI for the hackathon judges. It must stay up until 2026-12-15, when judging ends. Tell me its ID.",
+ "finished": "2026-11-10T05:19:41Z"
+}

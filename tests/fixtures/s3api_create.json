@@ -1,0 +1,5 @@
+{
+ "command": "aws s3api create-bucket --bucket report-bucket-1",
+ "output": "{\n    \"Location\": \"/report-bucket-1\"\n}",
+ "exit_code": 0
+}

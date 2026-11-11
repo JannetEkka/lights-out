@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 allocate-address --domain vpc",
+ "output": "{\n    \"AllocationId\": \"eipalloc-038f1bc9967776b09\",\n    \"Domain\": \"vpc\",\n    \"PublicIp\": \"127.227.219.163\"\n}",
+ "exit_code": 0
+}

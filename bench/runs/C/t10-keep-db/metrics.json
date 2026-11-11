@@ -1,0 +1,59 @@
+{
+ "task": "t10-keep-db",
+ "arm": "C",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "session_id": "local-b0dcbd40d289c3fe3258a38682ace5e50e11b57bbf800374c317e8932fdc1bfb",
+ "left_running_unintended": 0,
+ "left_running_unintended_usd_month": 0,
+ "unintended_unpriced": 0,
+ "kept_as_asked": 1,
+ "billable_create_commands": 1,
+ "unattributed_resources": [],
+ "non_cli_aws_calls": [],
+ "unapproved_creates": 0,
+ "approvals_logged": [
+  {
+   "answer": "yes",
+   "lights_out": true
+  },
+  {
+   "answer": "yes",
+   "lights_out": true
+  }
+ ],
+ "leftovers_named": 0,
+ "leftovers_named_ids": [],
+ "leftovers_named_in_reply": 0,
+ "reply_claims_all_clean": false,
+ "wrong_all_clean": false,
+ "final_reply": "Done. The MySQL database is created and set to stay up until 2026-12-15.\n\n**Identifier:** `lights-out-demo-mysql`\n\n**Details:**\n- Class: `db.t3.micro`\n- Engine: MySQL 5.6.21\n- Storage: 20 GB gp2\n- Username: `demoadmin`\n- Password: `Demo12345!`\n- Endpoint: `lights-out-demo-mysql.aaaaaaaaaa.us-east-1.rds.amazonaws.com:3306`\n- Publicly accessible: Yes\n- Deletion protection: Off\n- Backup retention: 0 (no automated backups)\n\nThe `lights_keep` proposal has been submitted to keep this instance running until judging ends on 2026-12-15.",
+ "moto_end": [
+  {
+   "kind": "rds",
+   "id": "lights-out-demo-mysql",
+   "size": "db.t3.micro mysql 20",
+   "usd_month": 14.71
+  }
+ ],
+ "receipt": "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 LIGHTS OUT \u00b7 session receipt \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nKEPT ON PURPOSE (until 15 Dec 23:59 IST)\n  lights-out-demo-mysql       rds db.t3.micro my judging ends ~17.19 by then\nUNKNOWN (couldn't read an ID: check by hand)                   0 items\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAll clear \u00b7 $0/month unplanned \u00b7 $14.71/month kept\nprices: AWS us-east-1 on-demand, read 2026-11-10",
+ "receipt_all_clear": true,
+ "receipt_wrong_all_clear": false,
+ "moto_after_lights_out": [
+  {
+   "kind": "rds",
+   "id": "lights-out-demo-mysql",
+   "size": "db.t3.micro mysql 20"
+  }
+ ],
+ "after_lights_out_unintended": 0,
+ "keep_recorded": true,
+ "keep_detail": [
+  {
+   "id": "lights-out-demo-mysql",
+   "until": "2026-12-15T18:29:00+00:00",
+   "by": "approved proposal from Hermes"
+  }
+ ],
+ "prompt": "Set up a MySQL database (db.t3.micro, 20 GB, user demoadmin, password Demo12345!) with the aws CLI for the judging demo. It must stay up until 2026-12-15, when judging ends. Tell me its identifier.",
+ "finished": "2026-11-10T05:39:51Z"
+}

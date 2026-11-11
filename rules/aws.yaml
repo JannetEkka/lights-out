@@ -1,0 +1,111 @@
+# Lights Out rule pack: AWS CLI (v1 and v2).
+# Data, not code. Each rule names one `aws <service> <operation>` and says how Lights Out
+# prices it, reads the new resource's ID from the CLI's output, and turns it off again.
+#
+#   op:          [service, operation] as typed after `aws` (global options are skipped)
+#   kind:        the resource type shown on the receipt
+#   price:       how the hourly price is worked out (see lights_out/pricing.py)
+#   ids:         where the new IDs are in the JSON output (dotted path, [] = every item)
+#   id_pattern:  a regex for the same IDs in plain-text output (--output text / --query)
+#   id_from_arg: the ID is a value from the command itself (only S3 buckets; checked
+#                against the output before it is recorded)
+#   delete:      the command that turns one resource off; {id} is replaced
+#   deletes:     for delete rules: which flag (or positional) holds the IDs
+version: 1
+provider: aws
+
+creates:
+  - key: ec2:create
+    kind: ec2
+    op: [ec2, run-instances]
+    price: {model: ec2_instance, size_flag: --instance-type, count_flags: [--count, --min-count]}
+    ids: Instances[].InstanceId
+    id_pattern: '\bi-[0-9a-f]{8,17}\b'
+    delete: aws ec2 terminate-instances --instance-ids {id}
+    describe: aws ec2 describe-instances --instance-ids {id} --output json
+
+  - key: ebs:create
+    kind: ebs
+    op: [ec2, create-volume]
+    price: {model: ebs_volume, size_flag: --size, type_flag: --volume-type, default_type: gp2}
+    ids: VolumeId
+    id_pattern: '\bvol-[0-9a-f]{8,17}\b'
+    delete: aws ec2 delete-volume --volume-id {id}
+    describe: aws ec2 describe-volumes --volume-ids {id} --output json
+
+  - key: eip:create
+    kind: eip
+    op: [ec2, allocate-address]
+    price: {model: public_ipv4}
+    ids: AllocationId
+    id_pattern: '\beipalloc-[0-9a-f]{8,17}\b'
+    delete: aws ec2 release-address --allocation-id {id}
+    describe: aws ec2 describe-addresses --allocation-ids {id} --output json
+
+  - key: nat:create
+    kind: nat
+    op: [ec2, create-nat-gateway]
+    price: {model: nat_gateway}
+    ids: NatGateway.NatGatewayId
+    id_pattern: '\bnat-[0-9a-f]{8,17}\b'
+    delete: aws ec2 delete-nat-gateway --nat-gateway-id {id}
+    describe: aws ec2 describe-nat-gateways --nat-gateway-ids {id} --output json
+
+  - key: elb:create
+    kind: elb
+    op: [elbv2, create-load-balancer]
+    price: {model: elbv2, type_flag: --type, default_type: application}
+    ids: LoadBalancers[].LoadBalancerArn
+    id_pattern: 'arn:aws[a-z-]*:elasticloadbalancing:[a-z0-9-]+:\d{12}:loadbalancer/(?:app|net|gwy)/[A-Za-z0-9-]+/[0-9a-f]+'
+    delete: aws elbv2 delete-load-balancer --load-balancer-arn {id}
+    describe: aws elbv2 describe-load-balancers --load-balancer-arns {id} --output json
+
+  - key: rds:create
+    kind: rds
+    op: [rds, create-db-instance]
+    price: {model: rds_instance, size_flag: --db-instance-class, engine_flag: --engine, storage_flag: --allocated-storage, storage_type_flag: --storage-type}
+    ids: DBInstance.DBInstanceIdentifier
+    id_flag: --db-instance-identifier
+    delete: aws rds delete-db-instance --db-instance-identifier {id} --skip-final-snapshot
+    describe: aws rds describe-db-instances --db-instance-identifier {id} --output json
+
+  - key: s3:create
+    kind: s3
+    op: [s3api, create-bucket]
+    price: {model: s3_bucket}
+    ids: Location
+    id_flag: --bucket
+    id_from_arg: true
+    delete: aws s3 rb s3://{id} --force
+    describe: aws s3api head-bucket --bucket {id}
+
+  - key: s3:create
+    kind: s3
+    op: [s3, mb]
+    price: {model: s3_bucket}
+    id_from_arg: true
+    id_positional: s3_uri
+    success_pattern: '^make_bucket: '
+    delete: aws s3 rb s3://{id} --force
+    describe: aws s3api head-bucket --bucket {id}
+
+deletes:
+  - {key: ec2:delete, kind: ec2, op: [ec2, terminate-instances], flag: --instance-ids}
+  - {key: ebs:delete, kind: ebs, op: [ec2, delete-volume], flag: --volume-id}
+  - {key: eip:delete, kind: eip, op: [ec2, release-address], flag: --allocation-id}
+  - {key: nat:delete, kind: nat, op: [ec2, delete-nat-gateway], flag: --nat-gateway-id}
+  - {key: elb:delete, kind: elb, op: [elbv2, delete-load-balancer], flag: --load-balancer-arn}
+  - {key: rds:delete, kind: rds, op: [rds, delete-db-instance], flag: --db-instance-identifier}
+  - {key: s3:delete, kind: s3, op: [s3api, delete-bucket], flag: --bucket}
+  - {key: s3:delete, kind: s3, op: [s3, rb], positional: s3_uri}
+
+# Read-only list calls /lights check uses to pair an "unknown" create with a real ID.
+# It pairs them only when the number of untracked resources equals the number of unknowns.
+listers:
+  ec2: {command: "aws ec2 describe-instances --filters Name=instance-state-name,Values=pending,running,stopping,stopped --output json", path: "Reservations[].Instances[].InstanceId"}
+  ebs: {command: "aws ec2 describe-volumes --output json", path: "Volumes[].VolumeId"}
+  eip: {command: "aws ec2 describe-addresses --output json", path: "Addresses[].AllocationId"}
+  nat: {command: "aws ec2 describe-nat-gateways --filter Name=state,Values=pending,available --output json", path: "NatGateways[].NatGatewayId"}
+  elb: {command: "aws elbv2 describe-load-balancers --output json", path: "LoadBalancers[].LoadBalancerArn"}
+  rds: {command: "aws rds describe-db-instances --output json", path: "DBInstances[].DBInstanceIdentifier"}
+  s3: {command: "aws s3api list-buckets --output json", path: "Buckets[].Name"}

@@ -1,0 +1,41 @@
+name: lights-out
+version: 0.1.0
+manifest_version: 2
+api_version: 1
+description: "Nothing billable starts without your yes and its price: AWS CLI creates go through Hermes's approval gate, a ledger records them, and every session ends with a receipt of what's still running and its $/month."
+author: Jannet Ekka
+license: MIT
+homepage: https://github.com/JannetEkka/lights-out
+requires_hermes: ">=0.23.1"
+tags: [cloud, aws, cost, approvals, safety]
+provides_tools:
+  - lights_status
+  - lights_keep
+provides_hooks:
+  - pre_tool_call
+  - post_tool_call
+  - on_session_start
+  - pre_llm_call
+  - on_session_finalize
+  - on_session_end
+config_schema:
+  timezone:
+    type: str
+    default: ""
+    label: "Time zone"
+    description: "IANA zone for keep dates (a keep ends at 23:59 that day), e.g. Asia/Kolkata. Empty = the system zone."
+  receipt_style:
+    type: str
+    choices: [bill, meter]
+    default: bill
+    label: "Receipt layout"
+  summary_sentence:
+    type: bool
+    default: true
+    label: "One-line summary on the receipt"
+    description: "One short sentence from your own model (ctx.llm). Dropped if it contains a number that isn't on the receipt."
+  color:
+    type: str
+    choices: [auto, always, never]
+    default: auto
+    label: "Colour on the receipt"

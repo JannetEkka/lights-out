@@ -1,0 +1,5 @@
+{
+ "command": "aws ec2 describe-instances --instance-ids i-0123456789abcdef0 --output json",
+ "output": "\nAn error occurred (InvalidInstanceID.NotFound) when calling the DescribeInstances operation: The instance ID 'i-0123456789abcdef0' does not exist",
+ "exit_code": 255
+}
