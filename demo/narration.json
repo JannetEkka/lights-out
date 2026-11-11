@@ -1,0 +1,12 @@
+{
+ "voice": "af_heart",
+ "speed": 1.0,
+ "scenes": {
+  "hook": "Your agent says it's done. But the cloud is still billing: a t3.large and a Postgres database, seventy-six dollars a month.",
+  "ask": "Lights Out is a plugin for Hermes Agent. Before any AWS command that creates something billable, Hermes asks you first, with the price. Say no, and nothing is created.",
+  "keep": "Some things should stay up, like a demo during judging. Hermes proposes a keep until that date, with the cost by then. Only you can approve it.",
+  "results": "We measured it. Ten tasks, the same model, three ways. Hermes alone left fourteen resources running, two hundred and sixty-two dollars a month. A clean-up prompt cut that to one. With Lights Out, nothing billable started without a yes, and one command turned off all fourteen.",
+  "out": "When you're finished, type lights out. It lists what it will turn off, asks once, and the receipt goes green. The demo server stays, kept on purpose.",
+  "end": "Lights Out, for Hermes Agent. Done shouldn't mean still billing."
+ }
+}

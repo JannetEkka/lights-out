@@ -163,6 +163,45 @@ def end_card():
     ], "Lights Out for Hermes Agent")
 
 
+def find_rows(term, first: str, last: str | None, before: int = 0, after: int = 0):
+    """(row0, row1) of the last block that starts with *first* and ends at *last* (or +after rows)."""
+    rows = term.screen.display
+    starts = [i for i, r in enumerate(rows) if first in r]
+    if not starts:
+        return None
+    r0 = starts[-1]
+    r1 = r0 + after
+    if last:
+        ends = [i for i in range(r0, len(rows)) if last in rows[i]]
+        r1 = ends[0] if ends else min(len(rows) - 1, r0 + after)
+    return max(0, r0 - before), min(len(rows) - 1, r1)
+
+
+def zoom(img: Image.Image, term, rows, amount: float, cols: int = 77) -> Image.Image:
+    """Ease the frame towards the receipt/box: columns 0..cols, centred on rows (row0, row1)."""
+    if not rows or amount <= 0:
+        return img
+    w = min(W, cols * term.cw + 60)
+    h = w * TERM_H / W
+    need = (rows[1] - rows[0] + 1) * term.ch + 50
+    if need > h:                       # tall block: widen until it fits
+        h = min(TERM_H, need)
+        w = h * W / TERM_H
+    x0 = max(0, term.ox - 30)
+    x0 = min(x0, W - w)
+    yc = term.oy + (rows[0] + rows[1] + 1) / 2 * term.ch
+    y0 = min(max(0, yc - h / 2), TERM_H - h)
+    a = amount * amount * (3 - 2 * amount)
+    box = (x0 * a, y0 * a, W + (x0 + w - W) * a, TERM_H + (y0 + h - TERM_H) * a)
+    return img.crop(tuple(int(v) for v in box)).resize((W, TERM_H), Image.LANCZOS)
+
+
+def ease_in(k: int, n: int, start_frac: float) -> float:
+    """0 before start_frac of the scene, then ramps to 1 over 1.2 s."""
+    t0 = n * start_frac
+    return max(0.0, min(1.0, (k - t0) / (1.2 * FPS)))
+
+
 def main() -> None:
     head, events = load_cast(HERE / "demo.cast")
     ev = compress(events)
@@ -173,56 +212,98 @@ def main() -> None:
             all_marks.append((ct, data))
     keep_box = [ct for ct, d in all_marks if d == "approval" and marks["turn2"] < ct <= marks["turn2_done"]]
     end_ct = ev[-1][0]
-    first_approved = marks.get("approved", marks.get("turn1_done"))
     out_start = marks.get("out", marks.get("out_yes"))
+    voice = json.loads((HERE / "voice" / "durations.json").read_text())
+    LEAD, TAIL = 0.5, 1.0
+
+    def slot(name, minimum):
+        return round(max(minimum, voice.get(name, 0) + LEAD + TAIL), 1)
+
+    receipt = ("LIGHTS OUT · session receipt", "prices:", 0, 0)
+    box = ("plugin approval rule", "<date>", 2, 0)
+    keepbox = ("plugin approval rule", "Approve only", 2, 0)
     scenes = [
-        # (start, end, seconds on screen, caption) ; None = card
-        # (start, end, seconds on screen, caption, seconds to hold the last frame); a str start = card
-        (marks["turn1_done"] - 6, marks["turn1_done"], 10, "Done shouldn't mean still billing.", 2),
-        (marks["turn1"], marks["approval"] + 0.3, 15, "Nothing billable starts without your yes, and its price", 4),
-        (marks["turn2"], (keep_box[-1] + 0.3) if keep_box else marks["turn2_done"], 15, "Keep it on purpose, until a date", 4),
-        ("results", None, 20, "Same model, same tasks: alone, with a prompt, with Lights Out", 0),
-        (out_start, marks.get("end", end_ct), 20, "One command to turn it all off", 0),
-        ("end", None, 8, "Lights Out for Hermes Agent", 0),
+        # name, start, end, seconds, caption, hold (s), zoom target, zoom starts at (fraction of scene)
+        ("hook", marks["turn1_done"] - 6, marks["turn1_done"], slot("hook", 10), "Done shouldn't mean still billing.", 3, receipt, 0.25),
+        ("ask", marks["turn1"], marks["approval"] + 0.3, slot("ask", 13), "Nothing billable starts without your yes, and its price", 5, box, 0.62),
+        ("keep", marks["turn2"], (keep_box[-1] + 0.3) if keep_box else marks["turn2_done"], slot("keep", 12), "Keep it on purpose, until a date", 5, keepbox, 0.55),
+        ("results", "card", None, slot("results", 18), "Same model, same tasks: alone, with a prompt, with Lights Out", 0, None, 0),
+        ("out", out_start, marks.get("end", end_ct), slot("out", 14), "One command to turn it all off", 5, receipt, 0.6),
+        ("end", "card", None, slot("end", 7), "Lights Out for Hermes Agent", 0, None, 0),
     ]
+    total = sum(sc[3] for sc in scenes)
+    assert total < 90, f"too long: {total}"
+    silent = HERE / "lights-out-demo.silent.mp4"
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                           "-crf", "20", "-movflags", "+faststart", str(HERE / "lights-out-demo.mp4")],
-                          stdin=subprocess.PIPE)
-    total = 0
-    for start, stop, secs, text, hold in scenes:
-        n = int(secs * FPS)
-        total += secs
-        if start in ("results", "end"):
-            base = results_card() if start == "results" else end_card()
-            for _ in range(n):
-                img = Image.new("RGB", (W, H), BG)
-                img.paste(base, (0, 0))
-                caption(ImageDraw.Draw(img), text, 1.0)
-                ff.stdin.write(img.tobytes())
-            continue
-        term = Term(head["width"], head["height"])
-        i = 0
-        while i < len(ev) and ev[i][0] < start:      # bring the screen up to the scene's start
-            if ev[i][1] == "o":
-                term.feed(ev[i][2])
-            i += 1
-        length = max(0.1, stop - start)
-        speed = max(1.0, length / max(1, secs - hold))
-        for k in range(n):
-            t = start + min(length, k / FPS * speed)
-            while i < len(ev) and ev[i][0] <= t:
+                           "-crf", "18", str(silent)], stdin=subprocess.PIPE)
+    prev_last = None
+    starts = {}
+    clock = 0.0
+    XF = int(0.4 * FPS)
+    for name, start, stop, secs, text, hold, target, zfrac in scenes:
+        starts[name] = clock
+        clock += secs
+        n = int(round(secs * FPS))
+        term = None
+        if start != "card":
+            term = Term(head["width"], head["height"])
+            i = 0
+            while i < len(ev) and ev[i][0] < start:
                 if ev[i][1] == "o":
                     term.feed(ev[i][2])
                 i += 1
+            length = max(0.1, stop - start)
+            speed = max(1.0, length / max(1, secs - hold))
+        base = results_card() if name == "results" else end_card() if name == "end" else None
+        for k in range(n):
+            if term is None:
+                tframe = base.copy()
+                if name == "results":            # rows print one by one, like a till
+                    d = ImageDraw.Draw(tframe)
+                    shown = 3 + int(k / (0.55 * FPS))
+                    y_cover = 150 + 46 * shown
+                    if y_cover < TERM_H - 40:
+                        d.rectangle((180, y_cover, W - 180, TERM_H - 40), fill=PAPER)
+                sp = 1.0
+            else:
+                t = start + min(length, k / FPS * speed)
+                while i < len(ev) and ev[i][0] <= t:
+                    if ev[i][1] == "o":
+                        term.feed(ev[i][2])
+                    i += 1
+                tframe = Image.new("RGB", (W, TERM_H), BG)
+                term.draw(ImageDraw.Draw(tframe))
+                if target:
+                    rows = find_rows(term, target[0], target[1], target[2], 12)
+                    tframe = zoom(tframe, term, rows, ease_in(k, n, zfrac))
+                sp = speed if k / FPS * speed < length else 1.0
             img = Image.new("RGB", (W, H), BG)
-            d = ImageDraw.Draw(img)
-            term.draw(d)
-            caption(d, text, speed)
+            img.paste(tframe, (0, 0))
+            caption(ImageDraw.Draw(img), text, sp)
+            if prev_last is not None and k < XF:
+                img = Image.blend(prev_last, img, (k + 1) / (XF + 1))
             ff.stdin.write(img.tobytes())
+            last = img
+        prev_last = last
     ff.stdin.close()
     ff.wait()
-    print(f"demo/lights-out-demo.mp4: {total} s, scenes from marks {json.dumps({k: round(v, 1) for k, v in marks.items()})}")
+
+    # narration: each scene's clip starts LEAD s into its scene
+    inputs, filters = [], []
+    for j, (name, *_rest) in enumerate(scenes):
+        wav = HERE / "voice" / f"{name}.wav"
+        inputs += ["-i", str(wav)]
+        ms = int((starts[name] + LEAD) * 1000)
+        filters.append(f"[{j + 1}:a]adelay={ms}|{ms},apad[a{j}]")
+    mix = "".join(f"[a{j}]" for j in range(len(scenes)))
+    filt = ";".join(filters) + f";{mix}amix=inputs={len(scenes)}:normalize=0,volume=1.0,atrim=0:{total}[aout]"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(silent), *inputs, "-filter_complex", filt,
+                    "-map", "0:v", "-map", "[aout]", "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-ar", "48000",
+                    "-movflags", "+faststart", "-shortest", str(HERE / "lights-out-demo.mp4")], check=True)
+    silent.unlink()
+    print(f"demo/lights-out-demo.mp4: {total:.1f} s; scenes start at "
+          + json.dumps({k: round(v, 1) for k, v in starts.items()}))
 
 
 if __name__ == "__main__":
